@@ -9,12 +9,11 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
     <ul>
-        {% for user in users %}
-        <li>{{ user.name }} - you won {{ random_gift[loop.index0] }}</li>
+        {% for message in app.flashes('notice') %}
+            <div class="flash-notice">
+                {{ message }}
+            </div>
         {% endfor %}
     </ul>
 </div>
