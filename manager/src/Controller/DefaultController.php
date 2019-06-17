@@ -10,9 +10,18 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DefaultController extends AbstractController
 {
+    public $killer;
+
+    public function __construct($logger)
+    {
+        $this->killer = $logger;
+    }
+
+
     /**
      * @Route("/", name="default")
      * @param GiftService $giftService
@@ -20,8 +29,11 @@ class DefaultController extends AbstractController
      */
     public function index(GiftService $giftService)
     {
+        dump($this->killer);
         $users = $this->getDoctrine()->getRepository(User::class)->findAll();
-        dump($users);
+//        if (!$users){
+//            throw $this->createNotFoundException('The users do not exist');
+//        }
         return $this->render('default/index.html.twig', [
             'controller_name' => 'DefaultController',
             'users' => $users,
@@ -47,9 +59,51 @@ class DefaultController extends AbstractController
         $res = new Response();
         $res->headers->setCookie($cookie);
         $res->send();
-
-
-
         //return $this->render('default/blog.html.twig', []);
+    }
+
+
+    /**
+     * @Route("/generate-url/{param?}", name="generate_url")
+     */
+    public function generate_url(): void
+    {
+        exit($this->generateUrl(
+            'generate_url',
+            array('param' => 10),
+            UrlGeneratorInterface::ABSOLUTE_URL
+        ));
+    }
+
+
+    /**
+     * @Route("/download", name="download")
+     */
+    public function download()
+    {
+        $path = $this->getParameter('download_directory');
+        return $this->file(($path.'text'));
+    }
+
+    /**
+     * @Route("/forwarding-to-controller")
+     */
+    public function forwardingToController()
+    {
+        $response = $this->forward(
+            'App\Controller\DefaultController::methodToForwardTo',
+            ['param' => '1']
+        );
+
+        return $response;
+    }
+
+    /**
+     * @Route("/url-to-forward-to/{param?}", name="route_to_forward_to")
+     * @param $param
+     */
+    public function methodToForwardTo($param)
+    {
+        exit('Test controller forwarding - '. $param);
     }
 }
