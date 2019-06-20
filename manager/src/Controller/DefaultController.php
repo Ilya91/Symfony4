@@ -29,7 +29,7 @@ class DefaultController extends AbstractController
      */
     public function index(GiftService $giftService)
     {
-        dump($this->killer);
+        //dump($this->killer);
         $users = $this->getDoctrine()->getRepository(User::class)->findAll();
 //        if (!$users){
 //            throw $this->createNotFoundException('The users do not exist');
