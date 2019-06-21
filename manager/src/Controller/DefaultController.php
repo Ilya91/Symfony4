@@ -41,11 +41,6 @@ class DefaultController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/blog/{page?}", name="blog_list", requirements={"page"="\d+"})
-     * @param Request $request
-     * @param SessionInterface $session
-     */
     public function blog(Request $request, SessionInterface $session)
     {
         //exit($request->cookies->get('PHPSESSID'));
