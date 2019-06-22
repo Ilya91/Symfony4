@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello BlogController!{% endblock %}
+
+{% block body %}
+    {% block content %}
+        <div class="container">
+            <h1>{{ post.title }}</h1>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="media">
+                        <img src="..." class="mr-3" alt="...">
+                        <div class="media-body">
+                            <p>{{ post.content }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+        </div> <!-- /container -->
+    {% endblock %}
+{% endblock %}

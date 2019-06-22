@@ -17,7 +17,7 @@ class PostFixtures extends Fixture
         $faker = Factory::create();
         for ($i = 0; $i < 30; $i++) {
             $post = new Post();
-            $post->setTitle($faker->words($nb = 3));
+            $post->setTitle($faker->sentence($nbWords = 3));
             $post->setContent($faker->text);
             $post->setUserId($faker->numberBetween(1, 9));
             $post->setCreatedAt($faker->dateTime($max = 'now', $timezone = null));
