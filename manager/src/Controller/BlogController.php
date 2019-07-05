@@ -120,8 +120,12 @@ class BlogController extends AbstractController
             ->add('save', SubmitType::class, ['label' => 'Update Post'])
             ->getForm();
 
+
         if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
+            $post = $form->getData();
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($post);
+            $entityManager->flush();
 
             $this->addFlash(
                 'success',
