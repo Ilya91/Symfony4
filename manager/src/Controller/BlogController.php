@@ -31,6 +31,7 @@ class BlogController extends AbstractController
      * @Route("/blog/new", name="blog_new")
      * @param Request $request
      * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
     public function new(Request $request)
     {
@@ -53,6 +54,11 @@ class BlogController extends AbstractController
              $entityManager->persist($post);
              $entityManager->flush();
 
+            $this->addFlash(
+                'success',
+                'New post created successfully!'
+            );
+
             return $this->redirectToRoute('blog');
         }
 
@@ -72,6 +78,61 @@ class BlogController extends AbstractController
         $post = $this->getDoctrine()->getRepository(Post::class)->find($request->get('id'));
         return $this->render('blog/view.html.twig', [
             'post' => $post,
+        ]);
+    }
+
+    /**
+     * @Route("/blog/{id}/delete", name="blog_delete")
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function delete(Request $request)
+    {
+        $post = $this->getDoctrine()->getRepository(Post::class)->find($request->get('id'));
+        if ($post){
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->remove($post);
+            $entityManager->flush();
+
+            $this->addFlash(
+                'danger',
+                $post->getTitle() . ' was deleted'
+            );
+
+            return $this->redirectToRoute('blog');
+        }
+    }
+
+    /**
+     * @Route("/blog/{id}/update", name="blog_update")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function update(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $post = $em->getRepository(Post::class)->find($request->get('id'));
+
+        $form = $this->createFormBuilder($post)
+            ->add('title', TextType::class)
+            ->add('user_id', IntegerType::class)
+            ->add('content', TextareaType::class)
+            ->add('save', SubmitType::class, ['label' => 'Update Post'])
+            ->getForm();
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+
+            $this->addFlash(
+                'success',
+                'Post was successfully updated!'
+            );
+
+            return $this->redirectToRoute('blog');
+        }
+
+        return $this->render('blog/update.html.twig', [
+            'form' => $form->createView()
         ]);
     }
 }

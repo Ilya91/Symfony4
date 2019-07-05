@@ -21,6 +21,8 @@
                                 <a href="/blog/{{ post.id }}">{{ post.title }}</a>
                                 <p>{{ post.content }}</p>
                             </div>
+                            <a href="{{ path('blog_update', { 'id': post.id }) }}">Update</a>
+                            <a href="{{ path('blog_delete', { 'id': post.id }) }}">Delete</a>
                         </li>
                         <hr>
                     {% endfor %}
