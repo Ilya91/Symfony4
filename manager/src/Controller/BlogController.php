@@ -20,7 +20,8 @@ class BlogController extends AbstractController
      */
     public function index()
     {
-        $posts = $this->getDoctrine()->getRepository(Post::class)->findAll();
+        $posts = $this->getDoctrine()->getRepository(Post::class)->findPostsWithAuthors();
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         //dump($posts);
         return $this->render('blog/index.html.twig', [
             'posts' => $posts,
@@ -37,11 +38,8 @@ class BlogController extends AbstractController
     {
         $post = new Post();
         $date = new DateTime();
-        $post->setCreatedAt($date);
-        $post->setUpdatedAt($date);
         $form = $this->createFormBuilder($post)
             ->add('title', TextType::class)
-            ->add('user_id', IntegerType::class)
             ->add('content', TextareaType::class)
             ->add('save', SubmitType::class, ['label' => 'Create Post'])
             ->getForm();
@@ -49,7 +47,12 @@ class BlogController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $user_id = $this->getUser()->getId();
             $post = $form->getData();
+            $post->setCreatedAt($date);
+            $post->setUpdatedAt($date);
+            $post->setUserId($user_id);
+            //dump($post);
              $entityManager = $this->getDoctrine()->getManager();
              $entityManager->persist($post);
              $entityManager->flush();
@@ -115,17 +118,14 @@ class BlogController extends AbstractController
 
         $form = $this->createFormBuilder($post)
             ->add('title', TextType::class)
-            ->add('user_id', IntegerType::class)
             ->add('content', TextareaType::class)
             ->add('save', SubmitType::class, ['label' => 'Update Post'])
             ->getForm();
 
-
+        $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $post = $form->getData();
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($post);
-            $entityManager->flush();
+            $em->persist($post);
+            $em->flush();
 
             $this->addFlash(
                 'success',

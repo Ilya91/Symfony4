@@ -30,7 +30,8 @@ class UserFixtures extends Fixture
                 '1111'
             ));
             $user->setEmail($faker->freeEmail);
-            $user->setRoles(['admin', 'user']);
+            $user->setUsername($faker->userName);
+            $user->setRoles(['ROLE_ADMIN']);
             $manager->persist($user);
         }
 

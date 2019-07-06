@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PostRepository")
@@ -18,13 +20,35 @@ class Post
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     *
+     * @Assert\Length(
+     *      min = 5,
+     *      max = 50,
+     *      minMessage = "Your first name must be at least 5 characters long",
+     *      maxMessage = "Your first name cannot be longer than 50 characters"
+     * )
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank
+     *
+     * @Assert\Length(
+     *      min = 100,
+     *      max = 500,
+     *      minMessage = "Your first name must be at least 100 characters long",
+     *      maxMessage = "Your first name cannot be longer than 500 characters"
+     * )
      */
     private $content;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="posts")
+     * @JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
 
     /**
      * @ORM\Column(type="integer")
@@ -104,5 +128,13 @@ class Post
         $this->updated_at = $updated_at;
 
         return $this;
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getUser(): ?User
+    {
+        return $this->user ? $this->user : null;
     }
 }
