@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Entity\Post;
 use DateTime;
 use Exception;
+use Gedmo\Sluggable\Util\Urlizer;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -53,6 +55,7 @@ class BlogController extends AbstractController
         $form = $this->createFormBuilder($post)
             ->add('title', TextType::class)
             ->add('content', TextareaType::class)
+            ->add('image', FileType::class)
             ->add('save', SubmitType::class, ['label' => 'Create Post'])
             ->getForm();
 
@@ -63,6 +66,18 @@ class BlogController extends AbstractController
             $post->setCreatedAt($date);
             $post->setUpdatedAt($date);
             $post->setUser($this->getUser());
+
+            $uploadedFile = $form['image']->getData();
+            $destination = $this->getParameter('kernel.project_dir').'/public/uploads';
+            $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
+            $uploadedFile->move(
+                $destination,
+                $newFilename
+            );
+            $post->setImage($newFilename);
+
+
              $entityManager = $this->getDoctrine()->getManager();
              $entityManager->persist($post);
              $entityManager->flush();

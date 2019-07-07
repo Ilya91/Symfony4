@@ -16,7 +16,7 @@
                 <ul class="list-unstyled">
                     {% for post in pagination %}
                         <li class="media">
-                            <img src="..." class="mr-3" alt="...">
+                            <img src="{{ asset('uploads/' ~ post.image) }}" class="mr-3" alt="..." width="100">
                             <div class="media-body">
                                 <a href="/blog/{{ post.id }}">{{ post.title }}</a>
                                 <p>{{ post.content }}</p>
