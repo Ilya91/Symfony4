@@ -31,9 +31,9 @@ class PostRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('p')
             ->leftJoin('p.user', 'u')
-            ->orderBy('p.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('p.id', 'DESC');
+            //->getQuery()
+            //->getResult();
     }
 
 

@@ -46,7 +46,6 @@ class Post
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="posts")
-     * @JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
 
@@ -136,5 +135,11 @@ class Post
     public function getUser(): ?User
     {
         return $this->user ? $this->user : null;
+    }
+
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+        return $this;
     }
 }

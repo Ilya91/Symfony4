@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Post;
 use DateTime;
+use Exception;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -11,28 +13,38 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class BlogController extends AbstractController
 {
     /**
      * @Route("/blog", name="blog")
+     * @param Request $request
+     * @param PaginatorInterface $paginator
+     * @return Response
      */
-    public function index()
+    public function index(Request $request, PaginatorInterface $paginator)
     {
-        $posts = $this->getDoctrine()->getRepository(Post::class)->findPostsWithAuthors();
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        //dump($posts);
+
+        $queryBuilder = $this->getDoctrine()->getRepository(Post::class)->findPostsWithAuthors();
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            5
+        );
+
         return $this->render('blog/index.html.twig', [
-            'posts' => $posts,
+            'pagination' => $pagination,
         ]);
     }
 
     /**
      * @Route("/blog/new", name="blog_new")
      * @param Request $request
-     * @return RedirectResponse|\Symfony\Component\HttpFoundation\Response
-     * @throws \Exception
+     * @return RedirectResponse|Response
+     * @throws Exception
      */
     public function new(Request $request)
     {
@@ -47,12 +59,10 @@ class BlogController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $user_id = $this->getUser()->getId();
             $post = $form->getData();
             $post->setCreatedAt($date);
             $post->setUpdatedAt($date);
-            $post->setUserId($user_id);
-            //dump($post);
+            $post->setUser($this->getUser());
              $entityManager = $this->getDoctrine()->getManager();
              $entityManager->persist($post);
              $entityManager->flush();
@@ -74,7 +84,7 @@ class BlogController extends AbstractController
     /**
      * @Route("/blog/{id}", name="blog_view")
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function view(Request $request)
     {
@@ -109,7 +119,7 @@ class BlogController extends AbstractController
     /**
      * @Route("/blog/{id}/update", name="blog_update")
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function update(Request $request)
     {
