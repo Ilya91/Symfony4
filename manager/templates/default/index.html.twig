@@ -1,6 +1,13 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Hello DefaultController!{% endblock %}
-
+{% set users = ['user1', 'user2', 'user3'] %}
 {% block body %}
+    <div class="container">
+        {{ controller_name|upper }}
+        {{ dump(controller_name) }}
+
+        {{ include('includes/subview.html.twig', {'users': users}) }}
+    </div>
+
 {% endblock %}
