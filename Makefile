@@ -46,6 +46,9 @@ manager-ready:
 manager-assets-dev:
 	docker-compose run --rm manager-node npm run dev
 
+watch:
+	docker-compose run --rm manager-node npm run watch
+
 manager-test:
 	docker-compose run --rm manager-php-cli php bin/phpunit
 

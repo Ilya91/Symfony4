@@ -10,6 +10,8 @@ require('../css/app.scss');
 
 // Need jQuery? Install it with "yarn add jquery", then uncomment to require it.
 const $ = require('jquery');
+global.$ = global.jQuery = $;
 require('bootstrap/dist/js/bootstrap.bundle.js');
+const getNiceMessage = require('./custom')
 
 console.log('Hello Webpack Encore! Edit me in assets/js/app.js');

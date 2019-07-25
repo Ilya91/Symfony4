@@ -4,10 +4,27 @@
 {% set users = ['user1', 'user2', 'user3'] %}
 {% block body %}
     <div class="container">
-        {{ controller_name|upper }}
-        {{ dump(controller_name) }}
+        {% for i in 1..3 %}
+            <p>hello</p>
+        {% endfor %}
 
+        {{ path('blog') }}<br>
+        {{ url('blog') }}<br>
+        {{ asset('uploads/image.png') }}<br>
+        {{ absolute_url(asset('uploads/image.png')) }}<br>
+
+        {% set string = "some string n\ from n\ database" %}
+        {{ string|escape }}<br>
+        {{ ga_code }}<br>
+        {{ app.user.username }}
+        {{ app.request.get('ter') }}
+        {% dump(app.session) %}
         {{ include('includes/subview.html.twig', {'users': users}) }}
     </div>
 
 {% endblock %}
+    {% block javascripts %}
+        <script>
+            let string = "hello"
+        </script>
+    {% endblock %}
