@@ -16,7 +16,7 @@
         {% set string = "some string n\ from n\ database" %}
         {{ string|escape }}<br>
         {{ ga_code }}<br>
-        {{ app.user.username }}
+{#        {{ app.user.username }}#}
         {{ app.request.get('ter') }}
         {% dump(app.session) %}
         {{ include('includes/subview.html.twig', {'users': users}) }}

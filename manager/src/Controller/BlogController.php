@@ -99,11 +99,11 @@ class BlogController extends AbstractController
     /**
      * @Route("/blog/{id}", name="blog_view")
      * @param Request $request
+     * @param Post $post
      * @return Response
      */
-    public function view(Request $request)
+    public function view(Request $request, Post $post)
     {
-        $post = $this->getDoctrine()->getRepository(Post::class)->find($request->get('id'));
         return $this->render('blog/view.html.twig', [
             'post' => $post,
         ]);
@@ -112,11 +112,11 @@ class BlogController extends AbstractController
     /**
      * @Route("/blog/{id}/delete", name="blog_delete")
      * @param Request $request
+     * @param Post $post
      * @return RedirectResponse
      */
-    public function delete(Request $request)
+    public function delete(Request $request, Post $post)
     {
-        $post = $this->getDoctrine()->getRepository(Post::class)->find($request->get('id'));
         if ($post){
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($post);
@@ -134,12 +134,12 @@ class BlogController extends AbstractController
     /**
      * @Route("/blog/{id}/update", name="blog_update")
      * @param Request $request
+     * @param Post $post
      * @return Response
      */
-    public function update(Request $request)
+    public function update(Request $request, Post $post)
     {
         $em = $this->getDoctrine()->getManager();
-        $post = $em->getRepository(Post::class)->find($request->get('id'));
 
         $form = $this->createFormBuilder($post)
             ->add('title', TextType::class)
