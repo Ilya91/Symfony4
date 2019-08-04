@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello VideoController!{% endblock %}
+
+{% block body %}
+    {% block content %}
+        <div class="container">
+            <!-- Example row of columns -->
+            <div class="row">
+                <div class="col-md-2 offset-md-10">
+                    <a href="/blog/new" role="button" class="btn btn-success">Create post</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                <ul class="list-unstyled">
+                </ul>
+                </div>
+            </div>
+
+            <hr>
+
+        </div> <!-- /container -->
+    {% endblock %}
+{% endblock %}

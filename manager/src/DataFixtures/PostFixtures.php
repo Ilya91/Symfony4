@@ -5,11 +5,12 @@ namespace App\DataFixtures;
 use App\Entity\Post;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
 
-class PostFixtures extends Fixture
+class PostFixtures extends Fixture implements DependentFixtureInterface
 {
 
     private $em;
@@ -24,19 +25,24 @@ class PostFixtures extends Fixture
     {
         $faker = Factory::create();
 
-        //$user = $this->em->getRepository(User::class)->findById(1);
+        $user = $this->em->getRepository(User::class)->find(1);
         for ($i = 0; $i < 30; $i++) {
             $post = new Post();
-//            $user = new User();
-//            $user->setId(1);
             $post->setTitle($faker->sentence($nbWords = 3));
             $post->setContent($faker->text);
-            //$post->setUser($user);
+            $post->setUser($user);
             $post->setCreatedAt($faker->dateTime($max = 'now', $timezone = null));
             $post->setUpdatedAt($faker->dateTime($max = 'now', $timezone = null));
             $manager->persist($post);
         }
 
         $manager->flush();
+    }
+
+    public function getDependencies()
+    {
+        return array(
+            UserFixtures::class,
+        );
     }
 }

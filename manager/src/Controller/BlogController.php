@@ -63,8 +63,6 @@ class BlogController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $post = $form->getData();
-            $post->setCreatedAt($date);
-            $post->setUpdatedAt($date);
             $post->setUser($this->getUser());
 
             $uploadedFile = $form['image']->getData();

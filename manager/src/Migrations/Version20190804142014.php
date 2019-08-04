@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190705201416 extends AbstractMigration
+final class Version20190804142014 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,13 +22,13 @@ final class Version20190705201416 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
 
-        $this->addSql('CREATE TEMPORARY TABLE __temp__user AS SELECT id, name FROM user');
-        $this->addSql('DROP TABLE user');
-        $this->addSql('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, password VARCHAR(255) NOT NULL, email VARCHAR(180) NOT NULL, roles CLOB NOT NULL --(DC2Type:json)
-        )');
-        $this->addSql('INSERT INTO user (id, password) SELECT id, name FROM __temp__user');
-        $this->addSql('DROP TABLE __temp__user');
+        $this->addSql('CREATE TABLE video (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id INTEGER DEFAULT NULL, title VARCHAR(255) NOT NULL)');
+        $this->addSql('CREATE INDEX IDX_7CC7DA2CA76ED395 ON video (user_id)');
+        $this->addSql('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, email VARCHAR(180) NOT NULL, roles CLOB NOT NULL --(DC2Type:json)
+        , password VARCHAR(255) NOT NULL, username VARCHAR(255) DEFAULT NULL)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D649E7927C74 ON user (email)');
+        $this->addSql('CREATE TABLE post (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id INTEGER NOT NULL, title VARCHAR(255) NOT NULL, content CLOB NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, image VARCHAR(255) DEFAULT NULL)');
+        $this->addSql('CREATE INDEX IDX_5A8A6C8DA76ED395 ON post (user_id)');
     }
 
     public function down(Schema $schema) : void
@@ -36,11 +36,8 @@ final class Version20190705201416 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'sqlite', 'Migration can only be executed safely on \'sqlite\'.');
 
-        $this->addSql('DROP INDEX UNIQ_8D93D649E7927C74');
-        $this->addSql('CREATE TEMPORARY TABLE __temp__user AS SELECT id, password FROM user');
+        $this->addSql('DROP TABLE video');
         $this->addSql('DROP TABLE user');
-        $this->addSql('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR(255) NOT NULL COLLATE BINARY)');
-        $this->addSql('INSERT INTO user (id, name) SELECT id, password FROM __temp__user');
-        $this->addSql('DROP TABLE __temp__user');
+        $this->addSql('DROP TABLE post');
     }
 }
