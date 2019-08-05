@@ -9,6 +9,7 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
+use Doctrine\ORM\Mapping\Table;
 
 class PostFixtures extends Fixture implements DependentFixtureInterface
 {
@@ -18,8 +19,10 @@ class PostFixtures extends Fixture implements DependentFixtureInterface
     {
         $this->em = $em;
     }
+
     /**
      * @param ObjectManager $manager
+     * @throws \Exception
      */
     public function load(ObjectManager $manager)
     {
@@ -39,6 +42,9 @@ class PostFixtures extends Fixture implements DependentFixtureInterface
         $manager->flush();
     }
 
+    /**
+     * @return array
+     */
     public function getDependencies()
     {
         return array(
