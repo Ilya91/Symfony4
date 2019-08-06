@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Services\GiftService;
+use App\Services\MyService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,7 +28,7 @@ class DefaultController extends AbstractController
      * @param GiftService $giftService
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function index(GiftService $giftService)
+    public function index(GiftService $giftService, MyService $service): Response
     {
         //dump($this->killer);
         $users = $this->getDoctrine()->getRepository(User::class)->findAll();
