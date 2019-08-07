@@ -13,6 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+
 
 class DefaultController extends AbstractController
 {
@@ -31,13 +33,26 @@ class DefaultController extends AbstractController
      * @param ContainerInterface $container
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function index(GiftService $giftService, MyService $service, ContainerInterface $container): Response
+    public function index(GiftService $giftService, ContainerInterface $container): Response
     {
         $users = $this->getDoctrine()->getRepository(User::class)->findAll();
 //        if (!$users){
 //            throw $this->createNotFoundException('The users do not exist');
 //        }
-        dump($container->get('app.myservice'));
+        //dump($container->get('app.myservice'));
+
+        $cache = new FilesystemAdapter();
+        $posts = $cache->getItem('database.get_posts');
+
+        if (!$posts->isHit())
+        {
+            $posts_from_db = ['post 1', 'post 2', 'post 3'];
+            dump('connected');
+            $posts->set(serialize($posts_from_db));
+            $posts->expiresAfter(5);
+            $cache->save($posts);
+        }
+        dump(unserialize($posts->get()));
         return $this->render('default/index.html.twig', [
             'controller_name' => 'DefaultController',
             'users' => $users,

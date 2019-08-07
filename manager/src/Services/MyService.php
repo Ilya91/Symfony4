@@ -8,7 +8,12 @@ class MyService
 {
     public function __construct($adminEmail, $service)
     {
-        dump($service);
+        dump('hello');
+    }
+
+    public function postFlush()
+    {
+
     }
 
 }

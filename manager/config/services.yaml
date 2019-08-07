@@ -40,6 +40,8 @@ services:
             $adminEmail: '%admin_email%'
             $service: '@App\Services\SecondService'
         public: true
+        tags:
+            - { name: doctrine.event_listener, event: postFlush }
 
     App\Services\MyService: '@app.myservice'
 
