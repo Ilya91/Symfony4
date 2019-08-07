@@ -6,9 +6,9 @@ namespace App\Services;
 
 class MyService
 {
-    public function __construct($adminEmail, $second_service )
+    public function __construct($adminEmail, $service)
     {
-        dump($adminEmail);
-        dump($second_service);
+        dump($service);
     }
+
 }

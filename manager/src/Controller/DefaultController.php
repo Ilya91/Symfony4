@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DefaultController extends AbstractController
 {
@@ -26,15 +27,17 @@ class DefaultController extends AbstractController
     /**
      * @Route("/", name="default")
      * @param GiftService $giftService
+     * @param MyService $service
+     * @param ContainerInterface $container
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function index(GiftService $giftService, MyService $service): Response
+    public function index(GiftService $giftService, MyService $service, ContainerInterface $container): Response
     {
-        //dump($this->killer);
         $users = $this->getDoctrine()->getRepository(User::class)->findAll();
 //        if (!$users){
 //            throw $this->createNotFoundException('The users do not exist');
 //        }
+        dump($container->get('app.myservice'));
         return $this->render('default/index.html.twig', [
             'controller_name' => 'DefaultController',
             'users' => $users,

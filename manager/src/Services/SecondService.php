@@ -8,6 +8,6 @@ class SecondService
 {
     public function __construct()
     {
-        dump('from second service');
+        //dump('from second service');
     }
 }
