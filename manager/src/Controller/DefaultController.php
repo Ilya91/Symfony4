@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 
 
 class DefaultController extends AbstractController
@@ -41,18 +42,25 @@ class DefaultController extends AbstractController
 //        }
         //dump($container->get('app.myservice'));
 
-        $cache = new FilesystemAdapter();
-        $posts = $cache->getItem('database.get_posts');
+//        $cache = new FilesystemAdapter();
+//        $posts = $cache->getItem('database.get_posts');
+//
+//        if (!$posts->isHit())
+//        {
+//            $posts_from_db = ['post 1', 'post 2', 'post 3'];
+//            dump('connected');
+//            $posts->set(serialize($posts_from_db));
+//            $posts->expiresAfter(5);
+//            $cache->save($posts);
+//        }
+        //dump(unserialize($posts->get()));
 
-        if (!$posts->isHit())
-        {
-            $posts_from_db = ['post 1', 'post 2', 'post 3'];
-            dump('connected');
-            $posts->set(serialize($posts_from_db));
-            $posts->expiresAfter(5);
-            $cache->save($posts);
-        }
-        dump(unserialize($posts->get()));
+        $cashe = new TagAwareAdapter(
+            new FilesystemAdapter()
+        );
+        $item = $cashe->getItem('item');
+        dump($item);
+
         return $this->render('default/index.html.twig', [
             'controller_name' => 'DefaultController',
             'users' => $users,
