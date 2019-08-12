@@ -1,0 +1,161 @@
+---
+- hosts: staging
+  environment:
+      APP_ENV: prod
+      APP_SECRET: fcb645b39a34b57d56b186e9e42b5453
+      DATABASE_URL: 'username@password:host:mysql_port/databse_name'
+
+  vars:
+      symfony_root_dir: /var/www/project
+      server_name: mootube.l
+      symfony_web_dir: "{{ symfony_root_dir }}/manager/public"
+      symfony_var_dir: "{{ symfony_root_dir }}/manager/var"
+      symfony_console_path: "{{ symfony_root_dir }}/manager/bin/console"
+
+  tasks:
+    - ping: ~
+
+    - name: Install cowsay - it's probably important
+      become: true
+      apt:
+        name: cowsay
+        update_cache: yes
+
+    - name: Install low-level utilities
+      become: true
+      apt:
+        name: "{{ item }}"
+      with_items:
+        - zip
+        - unzip
+
+
+    - name: Upgrade installed packages
+      become: true
+      apt:
+        upgrade: safe
+
+    - name: Install Git VCS
+      become: true
+      apt:
+        name: git
+        state: latest
+
+    - name: Add PHP 7 PPA repository
+      become: true
+      apt_repository:
+        repo: 'ppa:ondrej/php'
+
+    - name: Install PHP CLI
+      apt:
+        name: php7.2-cli
+
+    - name: Install PHP packages
+      become: true
+      apt:
+        name:
+          - php7.2-cli
+          - php7.2-curl
+          - php7.2-fpm
+          - php7.2-intl
+          - php7.2-mysql
+          - php7.2-pdo
+          - php7.2-pgsql
+          - php7.2-xml
+        state: latest
+
+    - name: Set date.timezone for FPM
+      become: true
+      lineinfile:
+        path: /etc/php/7.2/cli/php.ini
+        regexp: "date.timezone ="
+        line: "date.timezone = UTC"
+      notify: Restart PHP-FPM
+
+    - name: Install Nginx web server
+      become: true
+      apt:
+        name: nginx
+        state: latest
+
+    - name: Create project directory and set its permissions
+      become: true
+      file:
+        path: "{{ symfony_root_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        recurse: yes
+
+    - name: Checkout Git repository
+      git:
+        repo: https://github.com/Ilya91/Symfony4.git
+        dest: "{{ symfony_root_dir }}"
+        force: yes
+
+    - name: Download Composer
+      script: scripts/install_composer.sh
+
+    - name: Move Composer globally
+      become: true
+      command: mv composer.phar /usr/local/bin/composer
+
+    - name: Set permissions on Composer
+      become: true
+      file:
+        path: /usr/local/bin/composer
+        mode: "a+x"
+
+    - name: Install Composer's dependencies
+      composer:
+        working_dir: "{{ symfony_root_dir }}/manager"
+        no_dev: no
+
+    - name: Add Symfony config template to the Nginx available sites
+      become: true
+      template:
+        src: templates/symfony.conf
+        dest: "/etc/nginx/sites-available/{{ server_name }}.conf"
+
+    - name: Enable Symfony config template from Nginx available sites
+      become: true
+      file:
+        src: "/etc/nginx/sites-available/{{ server_name }}.conf"
+        dest: "/etc/nginx/sites-enabled/{{ server_name }}.conf"
+        state: link
+
+    - name: Add enabled Nginx site to /etc/hosts
+      become: true
+      lineinfile:
+        dest: /etc/hosts
+        regexp: "{{ server_name }}"
+        line: "127.0.0.1 {{ server_name }}"
+
+    - name: Fix var directory permissions
+      file:
+        path: "{{ symfony_var_dir }}"
+        state: directory
+        mode: 0777
+        recurse: yes
+
+    - name: Create DB if not exists
+      command: '{{ symfony_console_path }} doctrine:database:create --if-not-exists'
+    - name: Execute migrations
+      command: '{{ symfony_console_path }} doctrine:migrations:migrate --no-interaction'
+    - name: Load data fixtures
+      command: '{{ symfony_console_path }} hautelook_alice:doctrine:fixtures:load --no-interaction'
+
+  handlers:
+    - name: Restart Nginx
+      become: true
+      service:
+        name: nginx
+        state: restarted
+      notify: Restart Nginx
+
+    - name: Restart PHP-FPM
+      become: true
+      service:
+        name: php7.2-fpm
+        state: restarted
+
