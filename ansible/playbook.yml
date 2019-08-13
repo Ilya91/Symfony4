@@ -3,7 +3,7 @@
   environment:
       APP_ENV: prod
       APP_SECRET: fcb645b39a34b57d56b186e9e42b5453
-      DATABASE_URL: 'username@password:host:mysql_port/databse_name'
+      DATABASE_URL: pgsql://app:secret@127.0.0.1:5432/app
 
   vars:
       symfony_root_dir: /var/www/project
@@ -143,7 +143,7 @@
     - name: Execute migrations
       command: '{{ symfony_console_path }} doctrine:migrations:migrate --no-interaction'
     - name: Load data fixtures
-      command: '{{ symfony_console_path }} hautelook_alice:doctrine:fixtures:load --no-interaction'
+      command: '{{ symfony_console_path }} doctrine:fixtures:load --no-interaction'
 
   handlers:
     - name: Restart Nginx
