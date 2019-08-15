@@ -4,6 +4,7 @@
       APP_ENV: prod
       APP_SECRET: fcb645b39a34b57d56b186e9e42b5453
       DATABASE_URL: pgsql://app:secret@127.0.0.1:5432/app
+      SYMFONY_ENV: "{{ symfony_env|lower }}"
 
   vars:
       symfony_root_dir: /var/www/project
@@ -12,14 +13,22 @@
       symfony_var_dir: "{{ symfony_root_dir }}/manager/var"
       symfony_console_path: "{{ symfony_root_dir }}/manager/bin/console"
 
+  vars_prompt:
+    - name: symfony_env
+      prompt: "Enter the environment for your Symfony app (prod|dev|test)"
+      default: prod
+      private: no
+
   tasks:
     - ping: ~
 
-    - name: Install cowsay - it's probably important
-      become: true
-      apt:
-        name: cowsay
-        update_cache: yes
+    - debug:
+        var: ansible_env
+        tags:
+          - deploy
+
+    - debug:
+        var: symfony_env
 
     - name: Install low-level utilities
       become: true
@@ -155,6 +164,10 @@
         recurse: yes
       changed_when: false
 
+    - name: Clear cache
+      command: '{{ symfony_console_path }} cache:clear --env=prod'
+      tags:
+        - deploy
 
     - name: Create DB if not exists
       command: '{{ symfony_console_path }} doctrine:database:create --if-not-exists'
