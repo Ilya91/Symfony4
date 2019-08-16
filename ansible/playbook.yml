@@ -8,6 +8,7 @@
 
   vars:
       symfony_root_dir: /var/www/project
+      composer_path: /usr/local/bin/composer
       server_name: mootube.l
       symfony_web_dir: "{{ symfony_root_dir }}/manager/public"
       symfony_var_dir: "{{ symfony_root_dir }}/manager/var"
@@ -18,6 +19,13 @@
       prompt: "Enter the environment for your Symfony app (prod|dev|test)"
       default: prod
       private: no
+
+  pre_tasks:
+    - name: Convert entered Symfony environment to lowercase
+      set_fact:
+        symfony_env: "{{ symfony_env|lower }}"
+      tags:
+        - always
 
   tasks:
     - ping: ~
@@ -106,18 +114,36 @@
         dest: "{{ symfony_root_dir }}"
         force: yes
 
+    - name: Check for Composer
+      stat:
+        path: "{{ composer_path }}"
+      register: composer_stat
+      tags:
+        - deploy
+
     - name: Download Composer
       script: scripts/install_composer.sh
+      when: not composer_stat.stat.exists
 
     - name: Move Composer globally
       become: true
       command: mv composer.phar /usr/local/bin/composer
+      when: not composer_stat.stat.exists
 
     - name: Set permissions on Composer
       become: true
       file:
         path: /usr/local/bin/composer
         mode: "a+x"
+
+    - name: Make sure composer is at its latest version
+      composer:
+        working_dir: "{{ symfony_root_dir }}"
+        command: self-update
+      register: composer_self_update
+      changed_when: not composer_self_update.stdout is not search('You are already using composer version')
+      tags:
+        - deploy
 
     - name: Install Composer's dependencies
       tags:
@@ -165,7 +191,8 @@
       changed_when: false
 
     - name: Clear cache
-      command: '{{ symfony_console_path }} cache:clear --env=prod'
+      command: '{{ symfony_console_path }} cache:clear --env={{ symfony_env }}'
+      changed_when: false
       tags:
         - deploy
 
@@ -190,6 +217,9 @@
 
     - name: Load data fixtures
       command: '{{ symfony_console_path }} doctrine:fixtures:load --no-interaction'
+      when: symfony_env != "prod"
+      tags:
+        - deploy
 
 
   handlers:
