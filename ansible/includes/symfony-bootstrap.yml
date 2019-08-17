@@ -1,0 +1,79 @@
+---
+    - name: Install Composer's dependencies
+      when: code_changed|bool
+      tags:
+        - deploy
+      composer:
+        working_dir: "{{ symfony_root_dir }}/manager"
+        no_dev: no
+      notify: Restart PHP-FPM
+
+    - name: Add Symfony config template to the Nginx available sites
+      become: true
+      template:
+        src: templates/symfony.conf
+        dest: "/etc/nginx/sites-available/{{ server_name }}.conf"
+
+    - name: Enable Symfony config template from Nginx available sites
+      tags:
+        - deploy
+      become: true
+      file:
+        src: "/etc/nginx/sites-available/{{ server_name }}.conf"
+        dest: "/etc/nginx/sites-enabled/{{ server_name }}.conf"
+        state: link
+      notify: Restart Nginx
+
+    - name: Add enabled Nginx site to /etc/hosts
+      tags:
+        - deploy
+      become: true
+      lineinfile:
+        dest: /etc/hosts
+        regexp: "{{ server_name }}"
+        line: "127.0.0.1 {{ server_name }}"
+      notify: Restart Nginx
+
+    - name: Fix var directory permissions
+      tags:
+        - deploy
+        - permissions
+      file:
+        path: "{{ symfony_var_dir }}"
+        state: directory
+        mode: 0777
+        recurse: yes
+      changed_when: false
+
+    - name: Clear cache
+      when: code_changed|bool
+      command: '{{ symfony_console_path }} cache:clear --env={{ symfony_env }}'
+      changed_when: false
+      tags:
+        - deploy
+
+    - name: Create DB if not exists
+      command: '{{ symfony_console_path }} doctrine:database:create --if-not-exists'
+      tags:
+        - deploy
+      register: db_create_result
+      changed_when: db_create_result.stdout is not search('already exists. Skipped')
+
+    - debug:
+        var: db_create_result
+        tags:
+          - deploy
+
+    - name: Execute migrations
+      when: code_changed|bool
+      tags:
+        - deploy
+      command: '{{ symfony_console_path }} doctrine:migrations:migrate --no-interaction'
+      register: db_migrations_result
+      changed_when: not db_migrations_result.stdout is not search('No migrations to execute')
+
+    - name: Load data fixtures
+      command: '{{ symfony_console_path }} doctrine:fixtures:load --no-interaction'
+      when: symfony_env != "prod"
+      tags:
+        - deploy
