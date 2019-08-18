@@ -9,7 +9,6 @@
   vars:
       symfony_root_dir: /var/www/project
       composer_path: /usr/local/bin/composer
-      server_name: mootube.l
       symfony_web_dir: "{{ symfony_root_dir }}/manager/public"
       symfony_var_dir: "{{ symfony_root_dir }}/manager/var"
       symfony_console_path: "{{ symfony_root_dir }}/manager/bin/console"
@@ -26,6 +25,21 @@
         symfony_env: "{{ symfony_env|lower }}"
       tags:
         - always
+
+    - name: Update APT package manager repositories cache
+      become: true
+      apt:
+        update_cache: yes
+
+    - name: Upgrade installed packages
+      become: true
+      apt:
+        upgrade: safe
+
+  roles:
+    - nginx
+    - role: DavidWittman.redis
+      become: true
 
   tasks:
     - ping: ~
@@ -45,12 +59,6 @@
       with_items:
         - zip
         - unzip
-
-
-    - name: Upgrade installed packages
-      become: true
-      apt:
-        upgrade: safe
 
     - name: Install Git VCS
       become: true
@@ -88,12 +96,6 @@
         regexp: "date.timezone ="
         line: "date.timezone = UTC"
       notify: Restart PHP-FPM
-
-    - name: Install Nginx web server
-      become: true
-      apt:
-        name: nginx
-        state: latest
 
     - name: Create project directory and set its permissions
       tags:
@@ -155,13 +157,6 @@
     - import_tasks: ./includes/symfony-bootstrap.yml
 
   handlers:
-    - name: Restart Nginx
-      become: true
-      service:
-        name: nginx
-        state: restarted
-      notify: Restart Nginx
-
     - name: Restart PHP-FPM
       become: true
       service:
