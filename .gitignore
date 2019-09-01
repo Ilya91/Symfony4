@@ -1,3 +1,8 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea
 /manager/public/uploads
+/data/mysql/
+/manager/yarn.lock
+/manager/package-lock.json
+/manager/.ready
+/manager/translations/
