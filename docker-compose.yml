@@ -24,6 +24,10 @@ services:
         build:
             context: ./manager/docker/development
             dockerfile: php-cli.docker
+        environment:
+            APP_ENV: dev
+            APP_SECRET: fcb645b39a34b57d56b186e9e42b5453
+            DATABAE_URL: mysql://root:1234@127.0.0.1:3306/symfony
         volumes:
             - ./manager:/app
             - composer:/root/.composer/cache
