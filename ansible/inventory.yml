@@ -1,0 +1,13 @@
+staging:
+  hosts:
+    ami:
+      ansible_host: 37.139.17.32
+      ansible_user: root
+
+production:
+  hosts:
+    ubuntu:
+      ansible_host: 52.29.126.41
+      ansible_user: ubuntu
+
+

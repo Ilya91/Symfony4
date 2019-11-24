@@ -1,0 +1,46 @@
+---
+- name: Test Connection
+  hosts: staging
+  become: yes
+
+  vars:
+    source: '/var/www/symfony4/manager/public'
+    destination: '/var/www/manager'
+    message1: 'Hello'
+    message2: 'World'
+
+  tasks:
+    - name: Ping server
+      ping: ~
+
+    - name: Install Apache Web Server
+      apt:
+        name: apache2
+        state: latest
+
+    - name: Start Apache and Enable
+      service: name=apache2 state=started enabled=yes
+
+    - name: Print vars
+      debug:
+        var: message1
+
+    - debug:
+        msg: 'Word {{ message2 }}'
+
+    - set_fact: full_message='{{message1}} {{message2}}'
+    - debug:
+        var: full_message
+
+    - debug:
+        var: ansible_distribution
+
+    - shell: uptime
+      register: results
+
+    - debug:
+        var: results
+
+  handlers:
+    - name: Restart Apache
+      service: name=apache2 state=restarted
