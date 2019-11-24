@@ -62,10 +62,39 @@
       copy: src={{ source }} dest={{ destination }} mode=0555
       notify: Restart Apache Ubuntu
 
+    - name: Clone repo
+      git:
+        repo: https://github.com/express42/reddit.git
+        dest: /home/appuser/reddit
 
     - name: Print vars
       debug:
         var: message1
+
+    - name: Say hello to all
+      debug: msg='hello {{ item }}'
+      loop:
+        - 'Vasya'
+        - 'Petya'
+        - 'Masha'
+        - 'Olya'
+
+    - name: loop until example
+      shell: echo -n Z >> myfile.txt && cat myfile.txt
+      register: output
+      delay: 2
+      retries: 10
+      until: output.stdout.find('ZZZZ') == false
+
+    - name: print optput
+      debug:
+        var: output.stdout
+
+    - name: install many packages
+      yum: name={{item}} state=latest
+      loop:
+        - python
+        - tree
 
   handlers:
     - name: Restart Apache Ubuntu
