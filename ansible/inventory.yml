@@ -10,4 +10,10 @@ production:
       ansible_host: 52.29.126.41
       ansible_user: ubuntu
 
+localhost:
+  hosts:
+    local:
+      ansible_connection: local
+      ansible_user: root
+      ansible_sudo_pass: 1111
 

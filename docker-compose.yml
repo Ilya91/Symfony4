@@ -56,13 +56,6 @@ services:
             POSTGRES_DB: app
         ports:
             - "54321:5432"
-    manager-adminer:
-        image: dockette/adminer:full-php5
-        restart: always
-        depends_on:
-            - manager-postgres
-        ports:
-            - "8282:8080"
     manager-mysql:
         image: mysql:5.7
         ports:

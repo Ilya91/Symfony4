@@ -4,7 +4,7 @@
   become: yes
 
   vars:
-    source: '/var/www/symfony4/ansible/index.html'
+    source: '/var/www/symfony4/ansible/'
     destination: '/var/www/html'
     message1: 'Hello'
     message2: 'World'
@@ -57,6 +57,9 @@
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         recurse: yes
+
+    - name: Generate template
+      template: src={{ source }}/index.j2 dest={{ destination }}/index.html mode=0555
 
     - name: Copy project
       copy: src={{ source }} dest={{ destination }} mode=0555

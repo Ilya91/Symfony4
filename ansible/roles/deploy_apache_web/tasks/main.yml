@@ -1,0 +1,41 @@
+---
+# tasks file for deploy_apache_web
+  - name: Check the name of distribution
+    debug: var=ansible_os_family
+
+  - block: # ==== Block for Debian ==== #
+      - name: Install Apache Web Server
+        when: ansible_os_family == 'Debian'
+        apt:
+          name: apache2
+          state: latest
+
+      - name: Start Apache and Enable
+        service: name=apache2 state=started enabled=yes
+
+    when: ansible_os_family == 'Debian'
+
+  - block: # ==== Block for Debian ==== #
+      - name: Install Apache for RedHat
+        yum: name=httpd state=latest
+
+      - name: Start Apache and Enable
+        service: name=httpd state=started enabled=yes
+    when: ansible_os_family == 'RedHat'
+
+  - name: Create project directory and set its permissions
+    file:
+      path: "/var/www/html"
+      state: directory
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
+      recurse: yes
+
+  - name: Generate template
+    template: src=index.j2 dest={{ destination }}/index.html mode=0555
+    notify:
+      - Restart Apache Ubuntu
+      - Restart Apache RedHat
+
+  - name: Say hello!
+    include: task.yml

@@ -14,5 +14,14 @@
 <body>
 <h1>Ansible</h1>
 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus atque, cum doloremque dolores ducimus enim expedita impedit maxime molestias nihil pariatur quia repellendus reprehenderit sapiente sit totam voluptatum. Harum, omnis.</p>
+
+<h2>Hostname of this server</h2>
+<p>{{ ansible_hostname}}</p>
+
+<h2>Server os family</h2>
+<p>{{ ansible_os_family }}</p>
+
+<h2>IP address</h2>
+<p>{{ ansible_default_ipv4.address }}</p>
 </body>
 </html>

@@ -10,3 +10,5 @@ ansible staging -m uri -a 'url=https://onliner.by return_content=yes' - get cont
 ansible staging -m yum -a 'name=apache2 state=latest' -b
 ansible staging -m service -a 'name=apache2 state=started enabled=yes' -b
 ansible-doc -l  - show all modules
+ansible-galaxy init deploy_apache_web - generate new dir for role
+sudo ansible-playbook --connection=local local.yml - run ansible locally
