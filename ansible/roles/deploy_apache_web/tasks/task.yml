@@ -1,3 +1,15 @@
 ---
   - debug:
       msg: 'Hello!'
+
+  - name: Task Number 2
+    yum: name=treeeee state=latest
+    ignore_errors: yes
+
+  - name: Task Number 3
+    shell: echo hello world!
+    register: results
+#    failed_when: "'world' in results.stdout "
+
+  - debug:
+      var: results
